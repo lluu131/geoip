@@ -92,7 +92,7 @@
       "type": "text",
       "action": "output",
       "args": {
-        "outputDir": "./publish",
+        "outputDir": "./output/text",
         "outputName": "111111.txt",
         "wantedList": ["cn"]
       }
@@ -140,6 +140,10 @@
           "twitter"
         ]
       }
+    },
+    {
+      "type": "text",
+      "action": "output"
     }
   ]
 }
