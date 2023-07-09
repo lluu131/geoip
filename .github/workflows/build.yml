@@ -100,17 +100,27 @@ jobs:
           mv ./output/dat/*.txt ./output/dat/*.dat ./output/dat/*.sha256sum ./output/maxmind/*.mmdb ./output/maxmind/*.sha256sum *.gz *.zip ./publish/
           cp -fpPR ./output/text ./publish
 
+      - name: Get existing "release" branch
+        id: get_release_branch
+        run: |
+          cd publish || exit 1
+          git fetch
+          if git rev-parse --verify release >/dev/null 2>&1; then
+            echo "::set-output name=branch::release"
+          else
+            echo "::set-output name=branch::"
+          fi
+
       - name: Git push assets to "release" branch
         run: |
           cd publish || exit 1
           git init
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch
-          if git rev-parse --verify release >/dev/null 2>&1; then
-            git checkout release
-          else
+          if [ -z "${{ steps.get_release_branch.outputs.branch }}" ]; then
             git checkout -b release
+          else
+            git checkout "${{ steps.get_release_branch.outputs.branch }}"
           fi
           git add -A
           git commit -m "${{ env.RELEASE_NAME }}"
