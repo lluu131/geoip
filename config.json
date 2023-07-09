@@ -93,7 +93,6 @@
       "action": "output",
       "args": {
         "outputDir": "./output/dat",
-        "outputName": "111111.txt",
         "wantedList": ["cn"]
       }
     },
