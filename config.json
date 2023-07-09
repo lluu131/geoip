@@ -92,7 +92,7 @@
       "type": "text",
       "action": "output",
       "args": {
-        "outputDir": "./output/text",
+        "outputDir": "./output/",
         "outputName": "111111.txt",
         "wantedList": ["cn"]
       }
