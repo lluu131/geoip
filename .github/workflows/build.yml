@@ -100,23 +100,21 @@ jobs:
           mv ./output/dat/*.txt ./output/dat/*.dat ./output/dat/*.sha256sum ./output/maxmind/*.mmdb ./output/maxmind/*.sha256sum *.gz *.zip ./publish/
           cp -fpPR ./output/text ./publish
 
-      - name: Git push assets to "release" branch
+      - name: Git push assets to existing "release" branch
         run: |
           cd publish || exit 1
           git init
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git rev-parse --verify release >/dev/null 2>&1
-          if [ $? -eq 0 ]; then
-            git checkout release
-          else
-            git checkout -b release
-          fi
+          git fetch --all
+          git checkout release || git checkout -b release
+          git rm -rf .
+          git clean -fxd
+          cp -R ../output/. .
           git add -A
           git commit -m "${{ env.RELEASE_NAME }}"
           git remote add geoip "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git push -f -u geoip release
-
 
       - name: Remove some files to avoid publishing to GitHub release
         run: rm -rf ./publish/*.{gz,zip} ./publish/text
