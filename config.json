@@ -92,8 +92,8 @@
       "type": "text",
       "action": "output",
       "args": {
-        "outputName": "CN-ip-cidr.txt",
         "outputDir": "./publish",
+        "outputName": "111111.txt",
         "wantedList": ["cn"]
       }
     },
