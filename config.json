@@ -140,10 +140,6 @@
           "twitter"
         ]
       }
-    },
-    {
-      "type": "text",
-      "action": "output"
     }
   ]
 }
