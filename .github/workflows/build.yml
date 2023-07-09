@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
@@ -100,17 +100,18 @@ jobs:
           mv ./output/dat/*.txt ./output/dat/*.dat ./output/dat/*.sha256sum ./output/maxmind/*.mmdb ./output/maxmind/*.sha256sum *.gz *.zip ./publish/
           cp -fpPR ./output/text ./publish
 
-      - name: Git push assets to existing "release" branch
+      - name: Git push assets to "release" branch
         run: |
           cd publish || exit 1
           git init
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git fetch --all
-          git checkout release || git checkout -b release
-          git rm -rf .
-          git clean -fxd
-          cp -R ../output/. .
+          git fetch
+          if git rev-parse --verify release >/dev/null 2>&1; then
+            git checkout release
+          else
+            git checkout -b release
+          fi
           git add -A
           git commit -m "${{ env.RELEASE_NAME }}"
           git remote add geoip "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
