@@ -27,6 +27,12 @@ jobs:
         with:
           go-version-file: ./go.mod
 
+      - name: Set variables
+        run: |
+          echo "TAG_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+          echo "RELEASE_NAME=$(date +%Y%m%d%H%M)" >> $GITHUB_ENV
+        shell: bash
+
       - name: Fetch lists from ripe.net
         run: |
           chmod +x asn.sh
@@ -101,10 +107,8 @@ jobs:
           git config --local user.name "github-actions[bot]"
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git checkout -b release
-          git rm -rf .
-          git clean -fxd
           git add -A
-          git commit -m release
+          git commit -m "${{ env.RELEASE_NAME }}"
           git remote add geoip "https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}"
           git push -f -u geoip release
 
@@ -117,4 +121,4 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file_glob: true
           file: ./publish/*
-          tag: release
+          tag: ${{ env.TAG_NAME }}
