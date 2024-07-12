@@ -57,6 +57,31 @@
       }
     },
     {
+      "type": "singboxSRS",
+      "action": "add",
+      "args": {
+        "name": "cn",
+        "uri": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/cn.srs"
+      }
+    },
+    {
+      "type": "singboxSRS",
+      "action": "add",
+      "args": {
+        "name": "cn",
+        "uri": "./srs/cn.srs",
+        "onlyIPType": "ipv4"
+      }
+    },
+    {
+      "type": "singboxSRS",
+      "action": "add",
+      "args": {
+        "inputDir": "./srs",
+        "onlyIPType": "ipv6"
+      }
+    },
+    {
       "type": "cutter",
       "action": "remove",
       "args": {
@@ -95,6 +120,29 @@
         "name": "cn",
         "uri": "https://raw.githubusercontent.com/17mon/china_ip_list/master/china_ip_list.txt",
         "onlyIPType": "ipv4"
+      }
+    },
+    {
+      "type": "stdin",
+      "action": "add",
+      "args": {
+        "name": "cn"
+      }
+    },
+    {
+      "type": "stdin",
+      "action": "add",
+      "args": {
+        "name": "cn",
+        "onlyIPType": "ipv4"
+      }
+    },
+    {
+      "type": "stdin",
+      "action": "remove",
+      "args": {
+        "name": "cn",
+        "onlyIPType": "ipv6"
       }
     },
     {
@@ -165,10 +213,58 @@
       }
     },
     {
+      "type": "singboxSRS",
+      "action": "output",
+      "args": {
+        "outputDir": "./publish"
+      }
+    },
+    {
+      "type": "singboxSRS",
+      "action": "output",
+      "args": {
+        "wantedList": ["cn", "us"]
+      }
+    },
+    {
+      "type": "singboxSRS",
+      "action": "output",
+      "args": {
+        "wantedList": ["cn", "us"],
+        "onlyIPType": "ipv4"
+      }
+    },
+    {
       "type": "text",
       "action": "output",
       "args": {
         "outputDir": "./publish",
+        "wantedList": ["cn", "us", "private"],
+        "onlyIPType": "ipv6"
+      }
+    },
+    {
+      "type": "stdout",
+      "action": "output"
+    },
+    {
+      "type": "stdout",
+      "action": "output",
+      "args": {
+        "wantedList": ["cn", "us", "private"]
+      }
+    },
+    {
+      "type": "stdout",
+      "action": "output",
+      "args": {
+        "onlyIPType": "ipv6"
+      }
+    },
+    {
+      "type": "stdout",
+      "action": "output",
+      "args": {
         "wantedList": ["cn", "us", "private"],
         "onlyIPType": "ipv6"
       }

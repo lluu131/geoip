@@ -3,8 +3,6 @@ package maxmind
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,8 +18,6 @@ const (
 
 var (
 	defaultMMDBFile = filepath.Join("./", "geolite2", "GeoLite2-Country.mmdb")
-	tempMMDBPath    = filepath.Join("./", "tmp")
-	tempMMDBFile    = filepath.Join(tempMMDBPath, "input.mmdb")
 )
 
 func init() {
@@ -82,32 +78,26 @@ func (g *maxmindMMDBIn) GetDescription() string {
 }
 
 func (g *maxmindMMDBIn) Input(container lib.Container) (lib.Container, error) {
-	var fd io.ReadCloser
+	var content []byte
 	var err error
 	switch {
-	case strings.HasPrefix(g.URI, "http://"), strings.HasPrefix(g.URI, "https://"):
-		fd, err = g.downloadFile(g.URI)
+	case strings.HasPrefix(strings.ToLower(g.URI), "http://"), strings.HasPrefix(strings.ToLower(g.URI), "https://"):
+		content, err = lib.GetRemoteURLContent(g.URI)
 	default:
-		fd, err = os.Open(g.URI)
+		content, err = os.ReadFile(g.URI)
 	}
-
-	if err != nil {
-		return nil, err
-	}
-
-	err = g.moveFile(fd)
 	if err != nil {
 		return nil, err
 	}
 
 	entries := make(map[string]*lib.Entry)
-	err = g.generateEntries(entries)
+	err = g.generateEntries(content, entries)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(entries) == 0 {
-		return nil, fmt.Errorf("❌ [type %s | action %s] no entry is newly generated", typeMaxmindMMDBIn, g.Action)
+		return nil, fmt.Errorf("❌ [type %s | action %s] no entry is generated", typeMaxmindMMDBIn, g.Action)
 	}
 
 	var ignoreIPType lib.IgnoreIPOption
@@ -138,47 +128,19 @@ func (g *maxmindMMDBIn) Input(container lib.Container) (lib.Container, error) {
 				return nil, err
 			}
 		case lib.ActionRemove:
-			container.Remove(name, ignoreIPType)
+			if err := container.Remove(entry, lib.CaseRemovePrefix, ignoreIPType); err != nil {
+				return nil, err
+			}
+		default:
+			return nil, lib.ErrUnknownAction
 		}
 	}
 
 	return container, nil
 }
 
-func (g *maxmindMMDBIn) downloadFile(url string) (io.ReadCloser, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-
-	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("failed to get remote file %s, http status code %d", url, resp.StatusCode)
-	}
-
-	return resp.Body, nil
-}
-
-func (g *maxmindMMDBIn) moveFile(src io.ReadCloser) error {
-	defer src.Close()
-
-	err := os.MkdirAll(tempMMDBPath, 0755)
-	if err != nil {
-		return err
-	}
-
-	out, err := os.Create(tempMMDBFile)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	_, err = io.Copy(out, src)
-
-	return err
-}
-
-func (g *maxmindMMDBIn) generateEntries(entries map[string]*lib.Entry) error {
-	db, err := maxminddb.Open(tempMMDBFile)
+func (g *maxmindMMDBIn) generateEntries(content []byte, entries map[string]*lib.Entry) error {
+	db, err := maxminddb.FromBytes(content)
 	if err != nil {
 		return err
 	}
@@ -197,23 +159,14 @@ func (g *maxmindMMDBIn) generateEntries(entries map[string]*lib.Entry) error {
 			continue
 		}
 
-		var entry *lib.Entry
 		name := strings.ToUpper(record.Country.IsoCode)
-		if theEntry, found := entries[name]; found {
-			entry = theEntry
-		} else {
+		entry, found := entries[name]
+		if !found {
 			entry = lib.NewEntry(name)
 		}
 
-		switch g.Action {
-		case lib.ActionAdd:
-			if err := entry.AddPrefix(subnet); err != nil {
-				return err
-			}
-		case lib.ActionRemove:
-			if err := entry.RemovePrefix(subnet.String()); err != nil {
-				return err
-			}
+		if err := entry.AddPrefix(subnet); err != nil {
+			return err
 		}
 
 		entries[name] = entry

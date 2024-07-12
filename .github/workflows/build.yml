@@ -18,12 +18,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout codebase
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@v5
         with:
           go-version-file: ./go.mod
 
@@ -56,7 +56,8 @@ jobs:
 
       - name: Build geoip files
         run: |
-          go run ./
+          go build ./
+          ./geoip convert -c ./config.json
 
       - name: Verify mmdb files
         run: |
@@ -99,6 +100,7 @@ jobs:
           mkdir -p publish
           mv ./output/dat/*.txt ./output/dat/*.dat ./output/dat/*.sha256sum ./output/maxmind/*.mmdb ./output/maxmind/*.sha256sum *.gz *.zip ./publish/
           cp -fpPR ./output/text ./publish
+          cp -fpPR ./output/srs ./publish
 
       - name: Git push assets to "release" branch
         run: |
@@ -113,7 +115,7 @@ jobs:
           git push -f -u geoip release
 
       - name: Remove some files to avoid publishing to GitHub release
-        run: rm -rf ./publish/*.{gz,zip} ./publish/text
+        run: rm -rf ./publish/*.{gz,zip} ./publish/text ./publish/srs
 
       - name: Upload files to GitHub release
         uses: svenstaro/upload-release-action@v2

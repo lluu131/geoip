@@ -29,8 +29,10 @@ var privateCIDRs = []string{
 	"224.0.0.0/4",
 	"240.0.0.0/4",
 	"255.255.255.255/32",
+	"::/128",
 	"::1/128",
 	"fc00::/7",
+	"ff00::/8",
 	"fe80::/10",
 }
 
@@ -83,7 +85,9 @@ func (p *private) Input(container lib.Container) (lib.Container, error) {
 			return nil, err
 		}
 	case lib.ActionRemove:
-		container.Remove(entryNamePrivate)
+		if err := container.Remove(entry, lib.CaseRemovePrefix); err != nil {
+			return nil, err
+		}
 	default:
 		return nil, lib.ErrUnknownAction
 	}

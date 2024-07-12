@@ -1,8 +1,8 @@
 # 简介
 
-本项目每周四自动生成 GeoIP 文件，同时提供命令行界面（CLI）供用户自行定制 GeoIP 文件，包括但不限于 V2Ray dat 格式路由规则文件 `geoip.dat` 和 MaxMind mmdb 格式文件 `Country.mmdb`。
+本项目每周四自动生成 GeoIP 文件，同时提供命令行界面（CLI）供用户自行定制 GeoIP 文件，包括但不限于 V2Ray dat 格式路由规则文件 `geoip.dat`、MaxMind mmdb 格式文件 `Country.mmdb` 和 sing-box SRS 格式文件。
 
-This project releases GeoIP files automatically every Thursday. It also provides a command line interface(CLI) for users to customize their own GeoIP files, included but not limited to V2Ray dat format file `geoip.dat` and MaxMind mmdb format file `Country.mmdb`.
+This project releases GeoIP files automatically every Thursday. It also provides a command line interface(CLI) for users to customize their own GeoIP files, included but not limited to V2Ray dat format file `geoip.dat`, MaxMind mmdb format file `Country.mmdb` and sing-box SRS format files.
 
 ## 与官方版 GeoIP 的区别
 
@@ -63,6 +63,37 @@ rules:
 ```
 
 在 [Leaf](https://github.com/eycorsican/leaf) 中使用本项目 `.mmdb` 格式文件的参考配置，查看[官方 README](https://github.com/eycorsican/leaf/blob/master/README.zh.md#geoip)。
+
+在 [sing-box](https://github.com/SagerNet/sing-box) 中使用本项目 `.srs` 格式文件的参考配置：
+
+```json
+"route": {
+  "rules": [
+    {
+      "rule_set": "geoip-cn",
+      "outbound": "direct"
+    },
+    {
+      "rule_set": "geoip-us",
+      "outbound": "block"
+    }
+  ],
+  "rule_set": [
+    {
+      "tag": "geoip-cn",
+      "type": "remote",
+      "format": "binary",
+      "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/cn.srs"
+    },
+    {
+      "tag": "geoip-us",
+      "type": "remote",
+      "format": "binary",
+      "url": "https://raw.githubusercontent.com/Loyalsoldier/geoip/release/srs/us.srs"
+    }
+  ]
+}
+```
 
 ## 下载地址
 
@@ -127,6 +158,12 @@ rules:
   - [https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country-asn.mmdb.sha256sum](https://raw.githubusercontent.com/Loyalsoldier/geoip/release/Country-asn.mmdb.sha256sum)
   - [https://cdn.jsdelivr.net/gh/Loyalsoldier/geoip@release/Country-asn.mmdb.sha256sum](https://cdn.jsdelivr.net/gh/Loyalsoldier/geoip@release/Country-asn.mmdb.sha256sum)
 
+### sing-box SRS 格式路由规则文件
+
+> 适用于 [sing-box](https://github.com/SagerNet/sing-box)。
+
+请查看本项目 `release` 分支下的 [srs](https://github.com/Loyalsoldier/geoip/tree/release/srs) 目录。
+
 ## 定制 GeoIP 文件
 
 可通过以下几种方式定制 GeoIP 文件：
@@ -157,11 +194,13 @@ These two concepts are notable: `input` and `output`. The `input` is the data so
 支持的 `input` 输入格式：
 
 - **text**：纯文本 IP 和 CIDR（例如：`1.1.1.1` 或 `1.0.0.0/24`）
+- **stdin**：从 standard input 获取纯文本 IP 和 CIDR（例如：`1.1.1.1` 或 `1.0.0.0/24`）
 - **private**：局域网和私有网络 CIDR（例如：`192.168.0.0/16` 和 `127.0.0.0/8`）
 - **cutter**：用于裁剪前置步骤中的数据
 - **v2rayGeoIPDat**：V2Ray GeoIP dat 格式（`geoip.dat`）
 - **maxmindMMDB**：MaxMind mmdb 数据格式（`GeoLite2-Country.mmdb`）
 - **maxmindGeoLite2CountryCSV**：MaxMind GeoLite2 country CSV 数据（`GeoLite2-Country-CSV.zip`）
+- **singboxSRS**：sing-box SRS 格式（`geoip-cn.srs`）
 - **clashRuleSetClassical**：[classical 类型的 Clash RuleSet](https://github.com/Dreamacro/clash/wiki/premium-core-features#classical)
 - **clashRuleSet**：[ipcidr 类型的 Clash RuleSet](https://github.com/Dreamacro/clash/wiki/premium-core-features#ipcidr)
 - **surgeRuleSet**：[Surge RuleSet](https://manual.nssurge.com/rule/ruleset.html)
@@ -169,8 +208,10 @@ These two concepts are notable: `input` and `output`. The `input` is the data so
 支持的 `output` 输出格式：
 
 - **text**：纯文本 CIDR（例如：`1.0.0.0/24`）
+- **stdout**：将纯文本 CIDR 输出到 standard output（例如：`1.0.0.0/24`）
 - **v2rayGeoIPDat**：V2Ray GeoIP dat 格式（`geoip.dat`，适用于 [V2Ray](https://github.com/v2fly/v2ray-core)、[Xray-core](https://github.com/XTLS/Xray-core) 和 [Trojan-Go](https://github.com/p4gefau1t/trojan-go)）
 - **maxmindMMDB**：MaxMind mmdb 数据格式（`GeoLite2-Country.mmdb`，适用于 [Clash](https://github.com/Dreamacro/clash) 和 [Leaf](https://github.com/eycorsican/leaf)）
+- **singboxSRS**：sing-box SRS 格式（`geoip-cn.srs`，适用于 [sing-box](https://github.com/SagerNet/sing-box)）
 - **clashRuleSetClassical**：[classical 类型的 Clash RuleSet](https://github.com/Dreamacro/clash/wiki/premium-core-features#classical)
 - **clashRuleSet**：[ipcidr 类型的 Clash RuleSet](https://github.com/Dreamacro/clash/wiki/premium-core-features#ipcidr)
 - **surgeRuleSet**：[Surge RuleSet](https://manual.nssurge.com/rule/ruleset.html)
@@ -186,13 +227,64 @@ These two concepts are notable: `input` and `output`. The `input` is the data so
 可通过 `go install -v github.com/Loyalsoldier/geoip@latest` 直接安装 CLI。
 
 ```bash
-$ ./geoip -h
-Usage of ./geoip:
-  -c string
-    	URI of the JSON format config file, support both local file path and remote HTTP(S) URL (default "config.json")
-  -l	List all available input and output formats
+$ ./geoip
+geoip is a convenient tool to merge, convert and lookup IP & CIDR from various formats of geoip data.
 
-$ ./geoip -c config.json
+Usage:
+  geoip [command]
+
+Available Commands:
+  convert     Convert geoip data from one format to another by using config file
+  help        Help about any command
+  list        List all available input and output formats
+  merge       Merge plaintext IP & CIDR from standard input, then print to standard output
+
+Flags:
+  -h, --help   help for geoip
+
+Use "geoip [command] --help" for more information about a command.
+```
+
+```bash
+$ ./geoip list
+All available input formats:
+  - clashRuleSet (Convert ipcidr type of Clash RuleSet to other formats)
+  - clashRuleSetClassical (Convert classical type of Clash RuleSet to other formats (just processing IP & CIDR lines))
+  - cutter (Remove data from previous steps)
+  - maxmindGeoLite2CountryCSV (Convert MaxMind GeoLite2 country CSV data to other formats)
+  - maxmindMMDB (Convert MaxMind mmdb database to other formats)
+  - private (Convert LAN and private network CIDR to other formats)
+  - singboxSRS (Convert sing-box SRS data to other formats)
+  - stdin (Accept plaintext IP & CIDR from standard input, separated by newline)
+  - surgeRuleSet (Convert Surge RuleSet to other formats (just processing IP & CIDR lines))
+  - test (Convert specific CIDR to other formats (for test only))
+  - text (Convert plaintext IP & CIDR to other formats)
+  - v2rayGeoIPDat (Convert V2Ray GeoIP dat to other formats)
+
+All available output formats:
+  - clashRuleSet (Convert data to ipcidr type of Clash RuleSet)
+  - clashRuleSetClassical (Convert data to classical type of Clash RuleSet)
+  - maxmindMMDB (Convert data to MaxMind mmdb database format)
+  - singboxSRS (Convert data to sing-box SRS format)
+  - stdout (Convert data to plaintext CIDR format and output to standard output)
+  - surgeRuleSet (Convert data to Surge RuleSet)
+  - text (Convert data to plaintext CIDR format)
+  - v2rayGeoIPDat (Convert data to V2Ray GeoIP dat format)
+```
+
+```bash
+$ curl -s https://core.telegram.org/resources/cidr.txt | ./geoip merge -t ipv4
+91.105.192.0/23
+91.108.4.0/22
+91.108.8.0/21
+91.108.16.0/21
+91.108.56.0/22
+149.154.160.0/20
+185.76.151.0/24
+```
+
+```bash
+$ ./geoip convert -c config.json
 2021/08/29 12:11:35 ✅ [v2rayGeoIPDat] geoip.dat --> output/dat
 2021/08/29 12:11:35 ✅ [v2rayGeoIPDat] geoip-only-cn-private.dat --> output/dat
 2021/08/29 12:11:35 ✅ [v2rayGeoIPDat] geoip-asn.dat --> output/dat
@@ -207,26 +299,13 @@ $ ./geoip -c config.json
 2021/08/29 12:11:39 ✅ [text] cloudfront.txt --> output/text
 2021/08/29 12:11:39 ✅ [text] facebook.txt --> output/text
 2021/08/29 12:11:39 ✅ [text] fastly.txt --> output/text
-
-$ ./geoip -l
-All available input formats:
-  - v2rayGeoIPDat (Convert V2Ray GeoIP dat to other formats)
-  - maxmindMMDB (Convert MaxMind mmdb database to other formats)
-  - maxmindGeoLite2CountryCSV (Convert MaxMind GeoLite2 country CSV data to other formats)
-  - private (Convert LAN and private network CIDR to other formats)
-  - text (Convert plaintext IP & CIDR to other formats)
-  - clashRuleSetClassical (Convert classical type of Clash RuleSet to other formats (just processing IP & CIDR lines))
-  - clashRuleSet (Convert ipcidr type of Clash RuleSet to other formats)
-  - surgeRuleSet (Convert Surge RuleSet to other formats (just processing IP & CIDR lines))
-  - cutter (Remove data from previous steps)
-  - test (Convert specific CIDR to other formats (for test only))
-All available output formats:
-  - v2rayGeoIPDat (Convert data to V2Ray GeoIP dat format)
-  - maxmindMMDB (Convert data to MaxMind mmdb database format)
-  - clashRuleSetClassical (Convert data to classical type of Clash RuleSet)
-  - clashRuleSet (Convert data to ipcidr type of Clash RuleSet)
-  - surgeRuleSet (Convert data to Surge RuleSet)
-  - text (Convert data to plaintext CIDR format)
+2021/08/29 12:11:45 ✅ [singboxSRS] netflix.txt --> output/srs
+2021/08/29 12:11:45 ✅ [singboxSRS] telegram.txt --> output/srs
+2021/08/29 12:11:45 ✅ [singboxSRS] cn.txt --> output/srs
+2021/08/29 12:11:45 ✅ [singboxSRS] cloudflare.txt --> output/srs
+2021/08/29 12:11:45 ✅ [singboxSRS] cloudfront.txt --> output/srs
+2021/08/29 12:11:45 ✅ [singboxSRS] facebook.txt --> output/srs
+2021/08/29 12:11:45 ✅ [singboxSRS] fastly.txt --> output/srs
 ```
 
 ## License
